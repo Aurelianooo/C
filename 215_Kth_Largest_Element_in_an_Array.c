@@ -1,6 +1,7 @@
 #include<stdio.h>
 
 // 第K大的数字在数组中对应的位置为n-k(按照升序排序的话)
+// 虽然会超时，但是是正常的快排
 
 int quick_sort(int* nums, int numsSize, int k, int l, int r){
 	if(l==r) return nums[l];
