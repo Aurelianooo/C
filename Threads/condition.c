@@ -30,16 +30,17 @@ bool Full(Ring_Buffer* q){
 
 //扩展缓冲区，每次增加BUFFER_SIZE大小
 int Expand(Ring_Buffer* q){
-    q->queue=realloc(q->queue, q->maxSize*sizeof(int));
-    memset(q->queue+q->maxSize, 0, BUFFER_SIZE*sizeof(int));
+	q->queue=realloc(q->queue, q->maxSize*sizeof(int));
 	if(q->queue==NULL)	return -1;
-    // 移动tail后的数据
-    int i;
-    for(i=q->tail+1;i<q->maxSize;i++){
-        q->queue[i]=0;
-        q->queue[i+BUFFER_SIZE]=1;
-    }
-    if(q->head>q->tail) q->head=q->head+BUFFER_SIZE;
+	memset(q->queue+q->maxSize, 0, BUFFER_SIZE*sizeof(int));
+	if(!q->head){// 移动tail后的数据
+		int i;
+		for(i=q->tail+1;i<q->maxSize;i++){
+			q->queue[i]=0;
+			q->queue[i+BUFFER_SIZE]=1;
+		}
+		q->head=q->head+BUFFER_SIZE;
+	}
 	q->maxSize=q->maxSize+BUFFER_SIZE;
 	return q->maxSize;
 }
