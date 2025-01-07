@@ -36,8 +36,8 @@ int Expand(Ring_Buffer* q){
 	if(q->head!=0){// 移动tail后的数据
 		int i;
 		for(i=q->head;i<q->maxSize;i++){
+			q->queue[i+BUFFER_SIZE]=q->queue[i];
 			q->queue[i]=0;
-			q->queue[i+BUFFER_SIZE]=1;
 		}
 		q->head=q->head+BUFFER_SIZE;
 	}
