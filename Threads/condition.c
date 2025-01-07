@@ -33,7 +33,7 @@ int Expand(Ring_Buffer* q){
 	q->queue=realloc(q->queue, q->maxSize*sizeof(int));
 	if(q->queue==NULL)	return -1;
 	memset(q->queue+q->maxSize, 0, BUFFER_SIZE*sizeof(int));
-	if(!q->head){// 移动tail后的数据
+	if(q->head!=0){// 移动tail后的数据
 		int i;
 		for(i=q->tail+1;i<q->maxSize;i++){
 			q->queue[i]=0;
