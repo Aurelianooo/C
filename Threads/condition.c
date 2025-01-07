@@ -35,7 +35,7 @@ int Expand(Ring_Buffer* q){
 	memset(q->queue+q->maxSize, 0, BUFFER_SIZE*sizeof(int));
 	if(q->head!=0){// 移动tail后的数据
 		int i;
-		for(i=q->tail+1;i<q->maxSize;i++){
+		for(i=q->head;i<q->maxSize;i++){
 			q->queue[i]=0;
 			q->queue[i+BUFFER_SIZE]=1;
 		}
