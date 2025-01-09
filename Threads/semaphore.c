@@ -37,10 +37,10 @@ void *consumer1(void *arg)
         pthread_mutex_lock(&mutex);
         printf("Consumer---1---%d\n", queue[j]);
         queue[j] = 0;
+        j = (j + 1) % NUM;
         pthread_mutex_unlock(&mutex);
         sem_post(&blank_number);
-
-        j = (j + 1) % NUM;
+        
         sleep(rand() % 3);
     }
 }
@@ -53,10 +53,10 @@ void *consumer2(void *arg)
         pthread_mutex_lock(&mutex);
         printf("Consumer---2---%d\n", queue[j]);
         queue[j] = 0;
+        j = (j + 1) % NUM;
         pthread_mutex_unlock(&mutex);
         sem_post(&blank_number);
-
-        j = (j + 1) % NUM;
+        
         sleep(rand() % 3);
     }
 }
