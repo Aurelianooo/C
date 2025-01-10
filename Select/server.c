@@ -60,7 +60,7 @@ int main(void)
                 sys_error("too many clients");
             maxi = maxi > i ? maxi : i;
             maxfd = maxfd > cfd ? maxfd : cfd;
-            if (nready == 1)
+            if (--nready == 0)
                 continue;
         }
 
