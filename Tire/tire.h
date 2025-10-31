@@ -1,4 +1,3 @@
-
 #ifndef TIRE_TREE_H
 #define TIRE_TREE_H
 
@@ -7,7 +6,8 @@
 typedef struct TreeNode
 {
     struct TreeNode **child;
-    int val;
+    size_t size;
+    void* data;
     bool end;
 } TreeNode;
 
@@ -19,10 +19,10 @@ typedef struct TireTree
     int nodeCnt;
 } TireTree;
 
-struct TreeNode *initTreeNode(struct TireTree *tree, const int _val, const bool _end);
+struct TreeNode *initTreeNode(struct TireTree *tree, void* _data, size_t _size, const bool _end);
 struct TireTree *initTireTree(const int _childCnt);
 void destroyTireTree(struct TireTree *tree);
-void insertToTireTree(struct TireTree *tree, const char *s, const int val);
+void insertToTireTree(struct TireTree *tree, const char *s, void* _data, size_t _size);
 struct TreeNode *findFromTireTree(struct TireTree *tree, const char *s, int *depth);
 void removeFromTireTree(struct TireTree *tree, const char *s);
 
