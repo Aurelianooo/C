@@ -1,7 +1,3 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdbool.h>
-#include <string.h>
 #include "tire.h"
 
 struct TreeNode *initTreeNode(struct TireTree *tree, void *_data, size_t _size, const bool _end)
@@ -9,8 +5,8 @@ struct TreeNode *initTreeNode(struct TireTree *tree, void *_data, size_t _size, 
     struct TreeNode *node = (struct TreeNode *)malloc(sizeof(struct TreeNode));
     node->child = (struct TreeNode **)malloc(sizeof(struct TreeNode *) * (tree->childCnt));
     memset(node->child, 0, sizeof(struct TreeNode *) * (tree->childCnt));
-    node->size = _size;
     node->data = _data;
+    node->size = _size;
     node->end = _end;
     tree->nodeCnt++;
     return node;
@@ -47,6 +43,8 @@ void destroyTireTree(struct TireTree *tree)
 
 void insertToTireTree(struct TireTree *tree, const char *s, void *_data, size_t _size)
 {
+    if (*s == '\0')
+        return;
     const char *p = s;
     struct TreeNode *node = tree->root;
     while (*p != '\0')
@@ -63,9 +61,26 @@ void insertToTireTree(struct TireTree *tree, const char *s, void *_data, size_t 
         return;
     node->end = true;
     node->size = _size;
-    node->data = malloc(node->size);
-    memcpy(node->data, _data, node->size);
+    node->data = malloc(_size);
+    memcpy(node->data, _data, _size);
     tree->wordCnt++;
+}
+
+void travelTreeNode(struct TireTree *tree, struct TreeNode *node, void (*callback)(struct TreeNode *, void *), void *arg)
+{
+    if (!node)
+        return;
+    if (node->end)
+        callback(node, arg);
+    int i;
+    for (i = 0; i < tree->childCnt; i++)
+        if (node->child[i])
+            travelTreeNode(tree, node->child[i], callback, arg);
+}
+
+void travelTireTree(struct TireTree *tree, void (*callback)(struct TreeNode *, void *), void *arg)
+{
+    travelTreeNode(tree, tree->root, callback, arg);
 }
 
 struct TreeNode *findFromTireTree(struct TireTree *tree, const char *s, int *depth)
