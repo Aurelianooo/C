@@ -1,6 +1,12 @@
 #include <stdio.h>
 #include "tire.h"
 
+void myfunc(struct TreeNode *node, void *arg)
+{
+    printf("end node size:%lu\n", node->size);
+    printf("argument is:%d\n", *(int *)arg);
+}
+
 int main(void)
 {
     struct TireTree *tree = initTireTree(26); // lowercase letters only
@@ -31,6 +37,7 @@ int main(void)
         printf("Tire tree has %s\n", str);
     else
         printf("Tire tree has not %s\n", str);
+    travelTireTree(tree, myfunc, (void *)&data);
 
     printf("Tree root childcnt=%d, wordcnt=%d, nodecnt=%d\n", tree->childCnt, tree->wordCnt, tree->nodeCnt);
     destroyTireTree(tree);
