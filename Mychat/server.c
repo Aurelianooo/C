@@ -24,8 +24,6 @@ void event_add(struct myevent_s *ev)
     struct epoll_event epv;
     epv.events = ev->events;
     epv.data.ptr = (void *)ev;
-    if (ev->status == OFFLINE)
-        ev->status = ONLINE;
 
     if (epoll_ctl(g_efd, EPOLL_CTL_ADD, ev->fd, &epv) < 0)
         sys_error("epoll add failed");
@@ -53,14 +51,7 @@ void accept_conn(int lfd, void *arg)
     socklen_t len = sizeof cin;
     int cfd, i;
 
-    cfd = accept(lfd, (struct sockaddr *)&cin, &len);
-    if (cfd == -1)
-    {
-        if (errno != EAGAIN && errno != EINTR)
-            // TODO
-            printf("%s: accept, %s\n", __func__, strerror(errno));
-    }
-
+    cfd = Accept(lfd, (struct sockaddr *)&cin, &len);
     do
     {
         for (i = 0; i < MAX_EVENTS; i++)
@@ -96,7 +87,20 @@ void main_menu(int cfd, void *arg)
     }
     if (buf[0] == '1') // Anonymous
     {
-        // TODO
+        ev->status = ONLINE;
+        ev->user = NULL;
+        online_num++;
+        char s[] = "------------- Online ChatRoom BETA -------------[-][Anonymous]\n\n>$ ";
+        send(cfd, s, sizeof s, 0);
+
+        event_set(ev, cfd, EPOLLIN, recv_data);
+        // singly linked list (head insert w/o head)
+        struct anode *p = (struct anode *)user_tree->root->data;
+        struct anode *anode = (struct anode *)malloc(sizeof(struct anode));
+        anode->ev = ev;
+        anode->next = p;
+        user_tree->root->data = (void *)anode;
+        event_mod(ev);
     }
     else if (buf[0] == '2') // Login
     {
@@ -261,7 +265,7 @@ void logout(int cfd, void *arg)
         ev->len = strlen(buf);
         send_data(cfd, ev);
     }
-    ev->user->online = OFFLINE;
+    ev->user->online = false;
     ev->user->ev = NULL;
 }
 
@@ -270,6 +274,28 @@ void close_cfd(int cfd, void *arg, int *len)
     struct myevent_s *ev = (struct myevent_s *)arg;
     if (ev->user)
         logout(cfd, (void *)ev);
+    else if (ev->status == ONLINE)
+    {
+        // Anonymous
+        struct anode *p = (struct anode *)user_tree->root->data;
+        if (p->ev == ev)
+        {
+            user_tree->root->data = (void *)p->next;
+            free(p);
+        }
+        else
+        {
+            struct anode *q = p->next;
+            while (q->ev != ev)
+            {
+                p = p->next;
+                q = q->next;
+            }
+            p->next = q->next;
+            free(q);
+        }
+        online_num--;
+    }
     event_del(ev);
     Close(ev->fd);
     memset(ev, 0, sizeof(struct myevent_s));
@@ -297,7 +323,10 @@ void recv_data(int fd, void *arg)
     {
         tmp[len] = '\0';
         printf("receive from [fd=%d] pos[%ld],[len=%d]:%s", fd, ev - g_events, len - 1, tmp);
-        sprintf(ev->buf, "(%s):%s\n>$ ", ev->user->acc, tmp); // format message
+        if (ev->user) // format message
+            sprintf(ev->buf, "(%s):%s\n>$ ", ev->user->acc, tmp);
+        else
+            sprintf(ev->buf, "(Anonymous):%s\n>$ ", tmp);
         ev->len = strlen(ev->buf);
 
         event_set(ev, fd, EPOLLOUT, send_data);
@@ -323,9 +352,20 @@ void send_data(int fd, void *arg)
     struct myevent_s *ev = (struct myevent_s *)arg;
     if (ev->len > 0)
     {
+        // send message to Anonymous
+        struct anode *p = (struct anode *)user_tree->root->data;
+        while (p)
+        {
+            if (p->ev != ev)
+                send(p->ev->fd, ev->buf, ev->len, 0);
+            p = p->next;
+        }
+        // send message to others
         travelTireTree(user_tree, send_msg, (void *)ev);
+        // send prompt to myself
         if (ev->status == ONLINE)
             send(fd, "\n>$ ", 4, 0);
+
         event_set(ev, fd, EPOLLIN, recv_data);
         event_mod(ev);
     }
