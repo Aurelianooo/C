@@ -45,6 +45,12 @@ struct user
     struct myevent_s *ev;
 };
 
+struct anode // anonymous
+{
+    struct myevent_s *ev;
+    struct anode *next;
+};
+
 void event_set(struct myevent_s *ev, int fd, int events, void (*callback)(int, void *));
 void event_add(struct myevent_s *ev);
 void event_del(struct myevent_s *ev);
