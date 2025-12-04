@@ -32,14 +32,14 @@ static int free_element_data(void *data)
 {
     if (NULL == data)
     {
-        AVL_TEST_DEBUG("free element error data null");
+        AVL_TEST_DEBUG("free element error data null")
         return -1;
     }
     record_data_t *ele = (record_data_t *)data;
 
     if (NULL != ele->record_data)
     {
-        // AVL_TEST_DEBUG("free [%d]%s", ele->key, (char *)ele->record_data);
+        // AVL_TEST_DEBUG("free [%d]%s", ele->key, (char *)ele->record_data)
         free(ele->record_data);
         ele->record_data = NULL;
     }
@@ -50,13 +50,13 @@ void print_data(void *data)
 {
     if (NULL == data)
     {
-        AVL_TEST_DEBUG("data null");
+        AVL_TEST_DEBUG("data null")
         return;
     }
     record_data_t *record = (record_data_t *)data;
     int out;
     sscanf((char *)record->record_data, "node%d", &out);
-    AVL_TEST_DEBUG("[%d]----------------->[%s]", record->key, (char *)record->record_data);
+    AVL_TEST_DEBUG("[%d]----------------->[%s]", record->key, (char *)record->record_data)
 
     if (out != record->key)
     {
@@ -80,7 +80,7 @@ int process1(void)
     avl_tree_t *tree = avl_tree_create(sizeof(record_data_t), get_element_key, free_element_data, 0);
     if (NULL == tree)
     {
-        AVL_TEST_DEBUG("create tree error!");
+        AVL_TEST_DEBUG("create tree error!")
         return -1;
     }
 
@@ -96,10 +96,10 @@ int process1(void)
         tree->add(tree->_this, &ele);
     }
 
-    AVL_TEST_DEBUG("tree size[%d]", tree->size(tree->_this));
+    AVL_TEST_DEBUG("tree size[%d]", tree->size(tree->_this))
     tree->inorder(tree->_this, print_data);
 
-    AVL_TEST_DEBUG("clear");
+    AVL_TEST_DEBUG("clear")
     tree->clear_node(tree->_this);
     tree->destory(&(tree->_this));
 
@@ -118,10 +118,10 @@ void print_num(void *data)
 {
     if (NULL == data)
     {
-        AVL_TEST_DEBUG("data null");
+        AVL_TEST_DEBUG("data null")
         return;
     }
-    AVL_TEST_DEBUG("[%d]", *(int *)data);
+    AVL_TEST_DEBUG("[%d]", *(int *)data)
 }
 
 int process2(void)
@@ -129,7 +129,7 @@ int process2(void)
     avl_tree_t *tree = avl_tree_create(sizeof(int), get_number_key, NULL, 0);
     if (NULL == tree)
     {
-        AVL_TEST_DEBUG("create tree error!");
+        AVL_TEST_DEBUG("create tree error!")
         return -1;
     }
 
@@ -142,11 +142,11 @@ int process2(void)
         tree->add(tree, &num);
     }
 
-    AVL_TEST_DEBUG("---------------");
-    AVL_TEST_DEBUG("tree size[%d]", tree->size(tree));
+    AVL_TEST_DEBUG("---------------")
+    AVL_TEST_DEBUG("tree size[%d]", tree->size(tree))
     tree->inorder(tree, print_num);
 
-    AVL_TEST_DEBUG("clear");
+    AVL_TEST_DEBUG("clear")
     tree->clear_node(tree);
     tree->destory(&(tree));
 
