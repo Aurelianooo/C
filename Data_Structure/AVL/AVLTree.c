@@ -130,7 +130,7 @@ static void add_to_right(avl_node_t *node, avl_node_t *p)
 */
 static avl_node_t *LL(avl_node_t *node)
 {
-    // AVL_LOG_DEBUG("LL %d", *((char*)(node->element) + 4));
+    // AVL_LOG_DEBUG("LL %d", *((char*)(node->element) + 4))
     avl_node_t *temp = node->left_child;
 
     node->left_child = temp->right_child;
@@ -150,7 +150,7 @@ static avl_node_t *LL(avl_node_t *node)
 
 static avl_node_t *RR(avl_node_t *node)
 {
-    // AVL_LOG_DEBUG("RR %d", *((char*)(node->element) + 4));
+    // AVL_LOG_DEBUG("RR %d", *((char*)(node->element) + 4))
     avl_node_t *temp = node->right_child;
 
     node->right_child = temp->left_child;
@@ -278,7 +278,7 @@ static avl_node_t *avl_tree_create_node(avl_tree_t *tree)
     avl_node_t *node = (avl_node_t *)malloc(sizeof(avl_node_t));
     if (NULL == node)
     {
-        AVL_LOG_DEBUG("[ERROR]:node malloc");
+        AVL_LOG_DEBUG("[ERROR]:node malloc")
         return NULL;
     }
     node->element = malloc(_this->m_element_size);
@@ -314,7 +314,7 @@ static int avl_tree_add(avl_tree_t *tree, void *ele)
 
     avl_tree_private_t *_this = get_private_member(tree);
 
-    AVL_LOG_DEBUG("Add key[%d]", tree->pf_hash(ele));
+    AVL_LOG_DEBUG("Add key[%d]", tree->pf_hash(ele))
 
     memcpy(node->element, ele, _this->m_element_size);
 
@@ -364,7 +364,7 @@ static int avl_tree_add(avl_tree_t *tree, void *ele)
         }
         else
         {
-            AVL_LOG_DEBUG("Element repetition");
+            AVL_LOG_DEBUG("Element repetition")
             avl_tree_free_node(tree, node);
             avl_tree_unlock(tree);
             return -3; // 重复
@@ -417,7 +417,7 @@ static avl_node_t *query_by_key(avl_tree_t *tree, int key)
 {
     if (NULL == tree)
         return NULL;
-    AVL_LOG_DEBUG("Query key %d", key);
+    AVL_LOG_DEBUG("Query key %d", key)
     avl_tree_private_t *_this = get_private_member(tree);
 
     avl_node_t *p = _this->m_root;
