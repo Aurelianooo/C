@@ -343,7 +343,9 @@ void back_prop(int p, neural_network *nn, data_set *ds)
     // Output Layer
     for (j = 0; j < nn->lay[nn->num_lay - 1].num_neu; j++)
     {
+        // Sigmoid + MSE
         // nn->lay[nn->num_lay - 1].neu[j].dz = (nn->lay[nn->num_lay - 1].neu[j].actv - ds->train_set[p][j + nn->lay[0].num_neu]) * (nn->lay[nn->num_lay - 1].neu[j].actv) * (1 - nn->lay[nn->num_lay - 1].neu[j].actv);
+        // Sigmoid + BCE
         nn->lay[nn->num_lay - 1].neu[j].dz = nn->lay[nn->num_lay - 1].neu[j].actv - ds->train_set[p][j + nn->lay[0].num_neu];
 
         for (k = 0; k < nn->lay[nn->num_lay - 2].num_neu; k++)
