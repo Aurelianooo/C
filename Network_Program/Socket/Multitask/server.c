@@ -33,6 +33,7 @@ int main(void)
     Bind(lfd, (struct sockaddr *)&srv_addr, sizeof(srv_addr));
 
     Listen(lfd, 128);
+    printf("Waiting for client connections...\n");
 
     while (1)
     {
