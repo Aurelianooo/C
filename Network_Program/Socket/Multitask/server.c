@@ -14,6 +14,9 @@ int main(void)
     pid_t pid;
     int ret, i;
     char buf[BUFSIZ];
+    char str[INET_ADDRSTRLEN];
+
+    signal(SIGPIPE, SIG_IGN);
 
     struct sockaddr_in srv_addr, clt_addr;
     memset(&srv_addr, 0, sizeof(srv_addr));
@@ -23,21 +26,31 @@ int main(void)
     srv_addr.sin_port = htons(SRV_PORT);
     srv_addr.sin_addr.s_addr = htonl(INADDR_ANY);
 
+    // register SIGCHLD signal handling function
     struct sigaction act;
     act.sa_handler = catch_child;
     sigemptyset(&act.sa_mask);
     act.sa_flags = 0;
+    ret = sigaction(SIGCHLD, &act, NULL);
+    if (ret != 0)
+        sys_error("sigaction error");
 
     lfd = Socket(AF_INET, SOCK_STREAM, 0);
+
+    int opt = 1;
+    setsockopt(lfd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
 
     Bind(lfd, (struct sockaddr *)&srv_addr, sizeof(srv_addr));
 
     Listen(lfd, 128);
-    printf("Waiting for client connections...\n");
 
+    printf("Waiting for client connections...\n");
     while (1)
     {
         cfd = Accept(lfd, (struct sockaddr *)&clt_addr, &clt_addr_len);
+        printf("Client connected: %s:%d\n",
+               inet_ntop(AF_INET, &clt_addr.sin_addr, str, sizeof(str)),
+               ntohs(clt_addr.sin_port));
 
         pid = fork();
         if (pid < 0)
@@ -49,28 +62,27 @@ int main(void)
         }
         else
         { // main process
-            ret = sigaction(SIGCHLD, &act, NULL);
-            if (ret != 0)
-                sys_error("sigaction error");
-            close(cfd);
+            Close(cfd);
             continue;
         }
     }
 
     if (pid == 0)
     { // child process
+        printf("Child process %d started\n", getpid());
         while (1)
         {
             ret = Read(cfd, buf, sizeof(buf));
-            if (ret == 0)
+            if (ret <= 0)
             {
-                close(cfd);
-                exit(1);
+                printf("Client disconnected, child process %d exiting\n", getpid());
+                Close(cfd);
+                exit(EXIT_SUCCESS);
             }
             for (i = 0; i < ret; i++)
                 buf[i] = toupper(buf[i]);
-            Write(cfd, buf, ret);
-            write(STDOUT_FILENO, buf, ret);
+            Writen(cfd, buf, ret);
+            Write(STDOUT_FILENO, buf, ret);
         }
     }
 
