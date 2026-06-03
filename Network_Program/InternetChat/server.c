@@ -347,7 +347,7 @@ void get_uid(myevent_s *ev)
     sprintf(str, "%05d", user_num + 1);   
     strcpy(ev->um.usr_id, str); 
 
-    FILE *fp = fopen("/media/chrono/MHD/C/InternetChat/user_msg.txt", "a+");
+    FILE *fp = fopen("./user_msg.txt", "a+");
     if(fp == NULL) 
     {
         write(ev->fd, "error\n", 6);
