@@ -388,11 +388,6 @@ void init_lfd()
 {
     int lfd = Socket(AF_INET, SOCK_STREAM, 0);
 
-    // fcntl(lfd, F_SETFL, O_NONBLOCK);
-    // int opt = 1;
-    // if (setsockopt(lfd, SOL_SOCKET, SO_REUSEADDR, (void *)&opt, sizeof opt) == -1)
-    //     sys_error("setsockopt error");
-
     struct sockaddr_in sin;
     memset(&sin, 0, sizeof sin);
     sin.sin_family = AF_INET;
