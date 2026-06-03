@@ -52,24 +52,21 @@ void accept_conn(int lfd, void *arg)
     int cfd, i;
 
     cfd = Accept(lfd, (struct sockaddr *)&cin, &len);
-    do
-    {
-        for (i = 0; i < MAX_EVENTS; i++)
-            if (g_events[i].status == OFFLINE)
-                break;
-        if (i == MAX_EVENTS)
-        {
-            printf("%s: max connect limit[%d]\n", __func__, MAX_EVENTS);
+    for (i = 0; i < MAX_EVENTS; i++)
+        if (g_events[i].status == OFFLINE)
             break;
-        }
-        int flag = fcntl(cfd, F_GETFL);
-        flag |= O_NONBLOCK;
-        fcntl(cfd, F_SETFL, flag);
+    if (i == MAX_EVENTS)
+    {
+        printf("%s: max connect limit[%d]\n", __func__, MAX_EVENTS);
+        return;
+    }
+    int flag = fcntl(cfd, F_GETFL);
+    flag |= O_NONBLOCK;
+    fcntl(cfd, F_SETFL, flag);
 
-        send(cfd, message, sizeof message, 0);
-        event_set(&g_events[i], cfd, EPOLLIN, main_menu);
-        event_add(&g_events[i]);
-    } while (0);
+    send(cfd, message, sizeof message, 0);
+    event_set(&g_events[i], cfd, EPOLLIN | EPOLLET, main_menu);
+    event_add(&g_events[i]);
 
     printf("new connect [%s:%d],[fd=%d] pos[%d]\n",
            inet_ntoa(cin.sin_addr), ntohs(cin.sin_port), cfd, i);
@@ -93,7 +90,7 @@ void main_menu(int cfd, void *arg)
         char s[] = "------------- Online ChatRoom BETA -------------[-][Anonymous]\n\n>$ ";
         send(cfd, s, sizeof s, 0);
 
-        event_set(ev, cfd, EPOLLIN, recv_data);
+        event_set(ev, cfd, EPOLLIN | EPOLLET, recv_data);
         // singly linked list (head insert w/o head)
         struct anode *p = (struct anode *)user_tree->root->data;
         struct anode *anode = (struct anode *)malloc(sizeof(struct anode));
@@ -108,7 +105,7 @@ void main_menu(int cfd, void *arg)
         strcpy(buf, "Enter account:");
         send(cfd, buf, strlen(buf), 0);
 
-        event_set(ev, cfd, EPOLLIN, login);
+        event_set(ev, cfd, EPOLLIN | EPOLLET, login);
         event_mod(ev);
     }
     else if (buf[0] == '3') // Sign up
@@ -119,7 +116,7 @@ void main_menu(int cfd, void *arg)
         strcpy(buf, "Register account (No more than 8 lowercase letters):");
         send(cfd, buf, strlen(buf), 0);
 
-        event_set(ev, cfd, EPOLLIN, signUp);
+        event_set(ev, cfd, EPOLLIN | EPOLLET, signUp);
         event_mod(ev);
     }
     else
@@ -246,7 +243,7 @@ void signUp(int cfd, void *arg)
         send(cfd, message, sizeof message, 0);
         ev->user = NULL;
 
-        event_set(ev, cfd, EPOLLIN, main_menu);
+        event_set(ev, cfd, EPOLLIN | EPOLLET, main_menu);
         event_mod(ev);
     }
     ev->status++;
@@ -367,7 +364,7 @@ void send_data(int fd, void *arg)
         if (ev->status == ONLINE)
         {
             send(fd, "\n>$ ", 4, 0);
-            event_set(ev, fd, EPOLLIN, recv_data);
+            event_set(ev, fd, EPOLLIN | EPOLLET, recv_data);
             event_mod(ev);
         }
     }
