@@ -263,6 +263,7 @@ void logout(int cfd, void *arg)
         char *buf = ev->buf;
         sprintf(buf, "User [%s] log out, current online:[%d]\n\n>$ ", ev->user->acc, online_num);
         ev->len = strlen(buf);
+        ev->status = OFFLINE;
         send_data(cfd, ev);
     }
     ev->user->online = false;
@@ -364,10 +365,11 @@ void send_data(int fd, void *arg)
         travelTireTree(user_tree, send_msg, (void *)ev);
         // send prompt to myself
         if (ev->status == ONLINE)
+        {
             send(fd, "\n>$ ", 4, 0);
-
-        event_set(ev, fd, EPOLLIN, recv_data);
-        event_mod(ev);
+            event_set(ev, fd, EPOLLIN, recv_data);
+            event_mod(ev);
+        }
     }
     else
     {
