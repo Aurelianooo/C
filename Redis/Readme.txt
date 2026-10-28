@@ -1,0 +1,45 @@
+
+第一阶段 阅读Redis的数据结构部分，基本位于如下文件中：
+内存分配 zmalloc.c和zmalloc.h
+动态字符串 sds.h和sds.c
+双端链表 adlist.c和adlist.h
+字典 dict.h和dict.c
+跳跃表 redis.h文件里面关于zskiplist结构和zskiplistNode结构，以及t_zset.c中所有zsl开头的函数，比如 zslCreate、zslInsert、zslDeleteNode等
+基数统计 hyperloglog.c 中的 hllhdr 结构，以及所有以 hll 开头的函数
+
+第二阶段 熟悉Redis的内存编码结构
+整数集合数据结构 intset.h和intset.c
+压缩列表数据结构 ziplist.h和ziplist.c
+
+第三阶段 熟悉Redis数据类型的实现
+对象系统 object.c
+字符串键 t_string.c
+列表建 t_list.c
+散列键 t_hash.c
+集合键 t_set.c
+有序集合键 t_zset.c中除 zsl 开头的函数之外的所有函数
+HyperLogLog键 hyperloglog.c中所有以pf开头的函数
+
+第四阶段 熟悉Redis数据库的实现
+数据库实现 redis.h文件中的redisDb结构，以及db.c文件
+通知功能 notify.c
+RDB持久化 rdb.c
+AOF持久化 aof.c
+以及一些独立功能模块的实现
+发布和订阅 redis.h文件的pubsubPattern结构，以及pubsub.c文件
+事务 redis.h文件的multiState结构以及multiCmd结构，multi.c文件
+
+第五阶段 熟悉客户端和服务器端的代码实现
+事件处理模块 ae.c/ae_epoll.c/ae_evport.c/ae_kqueue.c/ae_select.c
+网路链接库 anet.c和networking.c
+服务器端 redis.c
+客户端 redis-cli.c
+这个时候可以阅读下面的独立功能模块的代码实现
+lua脚本 scripting.c
+慢查询 slowlog.c
+监视 monitor.c
+
+第六阶段 这一阶段主要是熟悉Redis多机部分的代码实现
+复制功能 replication.c
+Redis Sentinel sentinel.c
+集群 cluster.c
